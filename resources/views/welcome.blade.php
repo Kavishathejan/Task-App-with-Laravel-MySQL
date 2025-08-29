@@ -13,7 +13,7 @@
         }
         .welcome-card {
             background: rgba(255,255,255,0.9);
-            border-radius: 20px;
+            border-radius: 22px;
             padding: 40px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
