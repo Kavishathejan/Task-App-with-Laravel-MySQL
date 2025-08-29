@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
-            $table->id();
-            $table->string('task');
-            $table->boolean('isCompleted')->default(0);
-            $table->timestamps();
-        });
+    Schema::create('tasks', function (Blueprint $table) {
+        $table->id();
+        $table->string('task', 255);
+        $table->boolean('isCompleted')->default(0);
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->timestamps();
+    });
     }
+
 
     /**
      * Reverse the migrations.

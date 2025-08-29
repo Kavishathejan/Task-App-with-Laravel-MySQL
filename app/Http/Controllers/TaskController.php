@@ -4,74 +4,73 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    public function index()
+    {
+        $tasks = Task::where('user_id', Auth::id())->get();
+        return view('tasks')->with('tasks', $tasks);
+    }
+
     public function store(Request $request)
     {
-        // Validate input
-        $request->validate([
-    'task' => 'required|max:100|min:5',
-]);
+        $request->validate(['task' => 'required|max:100|min:5']);
 
+        Task::create([
+            'task' => $request->task,
+            'user_id' => Auth::id(),
+        ]);
 
-        // Create and save task
-        $task = new Task;
-        $task->task = $request->task;
-        $task->save();
-
-        // Fetch all tasks
-        $data = Task::all();
-
-        // Return the tasks view with updated list
-        return view('tasks')->with('tasks', $data);
+        return redirect()->route('tasks.index');
     }
 
     public function UpdateTaskAsCompleted($id)
     {
-        $task = Task::find($id);
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         $task->isCompleted = 1;
         $task->save();
 
-        $data = Task::all();
-        return view('tasks')->with('tasks', $data);
+        return redirect()->route('tasks.index');
     }
 
     public function UpdateTaskAsNotCompleted($id)
     {
-        $task = Task::find($id);
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         $task->isCompleted = 0;
         $task->save();
 
-        $data = Task::all();
-        return view('tasks')->with('tasks', $data);
+        return redirect()->route('tasks.index');
     }
+
     public function deletetask($id)
     {
-        $task = Task::find($id);
-        
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         $task->delete();
 
-        $data = Task::all();
-        return redirect()->back();
+        return redirect()->route('tasks.index');
     }
+
     public function updatetaskview($id)
     {
-        $task = Task::find($id);
-        
-        return view ('updatetask')->with('taskdata',$task);
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        return view('updatetask')->with('taskdata', $task);
     }
 
     public function updatetask(Request $request)
-{
-    $id = $request->id;
-    $taskData = Task::find($id);
+    {
+        $request->validate(['task' => 'required|max:100|min:5']);
 
-    $taskData->task = $request->task; // assign directly from request
-    $taskData->save();
+        $task = Task::where('id', $request->id)->where('user_id', Auth::id())->firstOrFail();
+        $task->task = $request->task;
+        $task->save();
 
-    $data = Task::all();
-    return view('tasks')->with('tasks', $data);
-}
-
+        return redirect()->route('tasks.index');
+    }
 }
